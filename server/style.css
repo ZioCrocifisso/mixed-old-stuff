@@ -1,0 +1,10 @@
+body {
+	background: #EEffCC;
+}
+
+#main {
+	background: yellow;
+	border: solid 5px red;
+	font-size: 300%;
+	color: blue;
+}
