@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+        <head>
+                <script type="text/javascript" src="sierpinski.js"></script>
+                <script type="text/javascript">
+                        var params = {
+                                        rotate: true,
+                                        generated: 100,
+                                        iter: 8,
+                                        iterchanged: true
+                        };
+
+                        function paramfunc(newparams) {
+                                if (newparams == null) {
+                                        return params;
+                                } else {
+                                        params = newparams;
+                                }
+                        }
+
+                        function iterchanged(n) {
+                                if (n > 0) {
+                                        params.iter <<= n;
+                                } else if (params.iter > 4) {
+                                        params.iter >>= -n;
+                                } else {
+                                        return;
+                                }
+
+                                params.iterchanged = true;
+                        }
+                </script>
+                <title>Piramide di Tartaglia</title>
+        </head>
+
+        <body onload="init(paramfunc)">
+                <canvas id="canvas" width="640" height="480">
+                        Canvas non supportati.
+                </canvas>
+                <br />
+                Iterazioni:
+                <input type="button" value="-" onclick="iterchanged(-1)" />
+                <input type="button" value="+" onclick="iterchanged(1)" />
+                Rotazione:
+                <input checked="checked" type="checkbox" onclick="params.rotate = this.checked" />
+        </body>
+</html>

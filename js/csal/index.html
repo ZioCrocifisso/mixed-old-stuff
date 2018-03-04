@@ -1,0 +1,28 @@
+<html>
+<head>
+        <script type="text/javascript" src="csal.js"></script>
+        <style type="text/css">
+                canvas {
+                        user-select: none;
+                }
+        </style>
+</head>
+<body onload="game_initialize()">
+	<div id="container" style="width: 100%; height: 100%;">
+                <div id="menu" style="text-align: center; width: 100%; font-size: small;">
+                        Sectors:
+                        <input id="ihmax" type="number" min="8" max="100" step="2" value="8"/>
+                        Levels:
+                        <input id="ivmax" type="number" min="5" max="50" value="6"/>
+                        Nickname:
+                        <input id="inick" type="text" maxlength="16" size="16" value="Anonimo"/>
+                        <input id="iremote" type="hidden" value="" />
+                        <input id="isubmit" type="button" value="Play"/>
+
+                        <div id="highs" style="width: 100%; display: none; overflow: auto; max-height: 80%;"></div>
+                </div>
+                <canvas id="game" height="100%">
+                        Canvas non supportati.
+                </canvas>
+        </div>
+</body>
