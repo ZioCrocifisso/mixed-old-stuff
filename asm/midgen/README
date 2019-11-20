@@ -1,0 +1,134 @@
+IT:
+
+INSTALLAZIONE:
+Eseguire i comandi:
+	make
+	sudo make install
+
+Il secondo comando è opzionale, ma se non viene chiamato, sarà
+necessario spostarsi sulla cartella in cui Midgen è stato
+compilato e/o eseguire il comando specificando la cartella.
+Per esempio:
+	midgen 123 | timidity -
+Se si è già dentro la cartella in cui è stato compilato, 
+diventerà:
+	./midgen 123 | timidity -
+
+INTRODUZIONE
+Midgen è un programma pensato principalmente per essere utilizzato
+come filtro per altri programmi.
+Il suo scopo è quello di creare un file MIDI a partire da una
+sequenza di numeri e di altri caratteri che ne controllano
+l'esecuzione e che impostano i vari parametri.
+In combinazione con calc o altri programmi che scrivono il risultato
+di calcoli è possibile creare delle semplici melodie.
+Per esempio:
+	calc -p 99! | midgen 'i<0>' | timidity -
+Come si può vedere dall'esempio, Midgen accetta un singolo parametro
+e dell'input.
+Il parametro serve soprattutto per gestire le varie impostazioni, 
+come il tempo, lo strumento da utilizzare e il volume, ma non c'è
+differenza tra il parametro e l'input.
+Il programma leggerà prima il parametro e poi l'input.
+Midgen può inoltre accettare un secondo parametro che indica il nome
+del file MIDI su cui scrivere. Normalmente infatti Midgen scrive
+il file MIDI nello standard output, e dunque lo manda al comando
+successivo (che può essere per esempio Timidity, un riproduttore di
+file MIDI). In tal modo però il file MIDI è solo temporaneo, e
+inoltre non viene impostata la lunghezza del file, e dunque alcuni
+lettori di file MIDI non lo interpretano correttamente. 
+	calc -p 99! | midgen 'i<0>' 99fattoriale.midi
+
+SINTASSI:
+	Impostazioni:
+	n<N>	imposta il numero della nota di base
+	i<N>	imposta lo strumento del canale
+	c<N>	cambia il canale
+	t<N>	imposta il tempo
+	v<N>	imposta il volume del canale
+	d<N>	imposta il ritardo (a differenza di '+', '-', 
+		e ':', è permanente)
+	@	inverte la modalità di disattivazione delle
+		note nei canali (vedi la sezione CANALI)
+	
+	Comandi:
+	N	esegui la nota N + nota di base, e ferma le precedenti
+	(N)	lo stesso, ma con una nota con più di una cifra
+	.	continua a suonare le note precedenti fino al prossimo
+		intervallo
+	!(N)	smetti di suonare la nota N, continuando a suonare le altre note
+		(usare il comando : per fermare più note contemporaneamente)
+	:	azzera ritardo per la prossima nota, ed evita di
+		fermare la precedente (serve per suonare più note
+		contemporaneamente, per esempio 1:2:3 ne suona 3)
+	+	incrementa il ritardo per la prossima nota
+	-	diminuisci il ritardo per la prossima nota
+	^	aumenta volume
+	/	diminuisci volume
+	;	termina precocemente la lettura (utile per utilizzare
+		solo il parametro, evitando che il programma chieda
+		all'utente di scrivere il resto dell'input)
+
+	Tutti gli altri caratteri (inclusi gli spazi) vengono ignorati.
+
+ESEMPI VARI:
+
+	#Questo esempio utilizza il programma sed per combinare due
+	#lettere e aumentare il ritardo per la terza. Per esempio, 
+	#123 diventa 1:2+3. Tuttavia sed è abbastanza complicato e
+	#ovviamente non è necessario conoscerlo per utilizzare
+	#Midgen. Per facilitare la creazione di canzoni più complesse
+	#dunque è stato aggiunto un programma che fa delle sostituzioni
+	#simili a sed, vedi la sezione "SCRIPT DI INSERIMENTO".
+	#È possibile ascoltare questa canzone qui: http://www.youtube.com/watch?v=9Irdr5_UWhE
+	calc -p 666! | sed 's/\(.\)\(.\)\(.\)/\1:\2+\3/g' | midgen 'i<50>' | timidity - #Versione che utilizza sed
+	calc -p 666! | ./insert.sh 'N:N+N' | midgen 'i<50>' | timidity - #Versione che utilizza insert.sh
+
+	#Esempio che utilizza due canali.
+	calc -p 98! | ./insert.sh 'c<0>Nc<1>+N' | ./midgen 'c<0>i<0>c<1>v<60>i<17>' | timidity -
+
+	#Idem.
+	calc -p 3454^65 | ./insert.sh 'c<0>N:N:Nc<1>N:N:N' | ./midgen 'c<0>i<46>c<1>v<40>i<17>' | timidity -
+
+	#Esempio più complesso con 3 canali.
+	calc -p 123^456 | ./insert.sh 'c<0>n<70>Nc<1>n<40>N:Nc<2>n<70>-N' | ./midgen 'c<0>i<0>v<127>c<1>v<60>i<0>c<2>v<40>i<49>' [...]
+
+Anche se è pensato per essere utilizzato come filtro, si può usare
+anche per comporre manualmente, infatti ignora spazi e tab in modo
+da lasciare la possibilità di ordinare il "codice".
+
+CANALI:
+I canali permettono di riprodurre più note di strumenti
+diversi contemporaneamente. Quando viene riprodotta una
+nota, vengono disattivate solo le note di quel canale.
+In questo modo è possibile continuare a riprodurre la
+stessa nota di un altro strumento anche mentre altre
+continuano a fermarsi e riprodursi. Tuttavia questo
+potrebbe non essere ciò che desideri, visto che in tal
+modo, cambiando da un canale all'altro, una nota
+continuerà ad essere riprodotta finché non verrà
+riprodotta un'altra nota in quel canale. Ciò può essere
+facilmente evitato invertendo la modalità di disattivazione
+delle note, con il comando @. Quando questo viene chiamato, 
+il programma comincerà a disattivare le note di tutti i
+canali ogni volta che ne incontra una, finché non viene
+chiamato di nuovo.
+In ogni caso non è sempre necessario utilizzare i canali,
+spesso basta cambiare lo strumento.
+
+SCRIPT DI INSERIMENTO:
+Visto che questo programma è pensato principalmente per essere
+utilizzato con delle sequenze di numeri in input, è stato
+aggiunto uno script con cui è possibile aggiungere dei caratteri
+in mezzo ai numeri, per esempio per suonarli contemporaneamente
+o cambiare lo strumento.
+Lo script è insert.sh, e accetta un parametro che contiene la
+nuova forma che dovranno assumere i numeri, dove N indica un 
+numero. Per esempio, NNN: indica che ogni 3 numeri si dovrà aggiungere
+il carattere ':', e dunque ogni 3 note una verrà suonata
+contemporaneamente alla prossima. Oppure, i<5>NN<i>6NN cambia strumento
+ogni due note. Un esempio più complesso: i<1N>d<N>(NN).!(N).N
+Va utilizzato in questo modo:
+COMANDO CHE PRODUCE LA SEQUENZA | ./INSERT.SH PARAMETRO | MIDGEN [...]
+Per esempio:
+calc -p 99! | ./insert.sh N:N:N | midgen 'i<5>' | timidity -

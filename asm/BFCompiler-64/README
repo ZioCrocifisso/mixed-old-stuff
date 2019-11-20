@@ -1,0 +1,23 @@
+EN:
+
+Installation:
+	make
+	sudo make install
+	make clean					#Optional
+
+Usage:
+	bfc < sourcecode > binaryoutput
+	chmod 755 binaryoutput				#If needed
+
+
+
+IT:
+
+Installazione:
+	make
+	sudo make install
+	make clean					#Opzionale (rimuove i file inutili)
+
+Utilizzo:
+	bfc < sorgente > eseguibile
+	chmod 755 eseguibile				#Se richiesto (imposta i permessi per l'esecuzione)
